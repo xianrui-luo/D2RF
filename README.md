@@ -13,3 +13,5 @@
 
 
 This repository is the official PyTorch implementation of the ECCV 2024 paper "Dynamic Neural Radiance Field From Defocused Monocular Video".
+
+## [Data](https://drive.google.com/drive/folders/1nUNWrFLKmK2g-ClJ4Nd9OGuxhYeu6Sv7?usp=sharing) (uploading)
