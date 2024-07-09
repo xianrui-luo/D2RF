@@ -340,7 +340,34 @@ def train():
         return
 
     if args.render_test:
-        render_poses = np.array(poses[i_test])
+        images = torch.Tensor(images)#.to(device)
+        depths = torch.Tensor(depths)#.to(device)
+        masks = torch.Tensor(bg_masks).to(device)
+        num_img = float(images.shape[0])
+
+        poses = torch.Tensor(poses).to(device)
+        for img_i in i_test:
+                target = images[img_i]
+                pose = poses[img_i, :3,:4]
+
+                img_idx_embed = img_i/num_img * 2. - 1.0
+                testsavedir = os.path.join(basedir, expname, 'testset_{:06d}'.format(start))
+                os.makedirs(testsavedir, exist_ok=True)
+                with torch.no_grad():
+                    # if i<args.N_iters:
+                    ret = render(img_idx_embed,
+                            0, False,
+                            num_img, H, W, focal, 
+                            chunk=1024*16, 
+                            c2w=pose,
+                            **render_kwargs_test)
+                rgb = ret['rgb_map_ref'].cpu().numpy()
+                save_img_path = os.path.join(testsavedir, 
+                                    '%06d_right.png'%((img_i-1)//2))
+
+                imageio.imwrite(save_img_path, 
+                                to8b(rgb))
+        return
 
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
