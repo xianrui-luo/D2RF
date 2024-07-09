@@ -9,9 +9,9 @@ from torch.utils.tensorboard import SummaryWriter
 import cv2
 from kornia import create_meshgrid
 
-from render_utils_mpi_final import *
-from run_nerf_helpers_mpi import *
-from load_llff_mpi import *
+from render_utils import *
+from run_nerf_helpers import *
+from load_llff import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(1)
