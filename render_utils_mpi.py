@@ -5,8 +5,8 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from run_nerf_helpers_mpi import *
-from bokeh_utils import MPIBokehRenderer,MPIBokehRenderer_blending,SoftDiskBlur_mpi,MPIBokehRenderer_final,MPIBokehRenderer_blending_final
+from run_nerf_helpers import *
+from bokeh_utils import MPIBokehRenderer_final,MPIBokehRenderer_blending_final
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DEBUG = False
 # INFERENCE = True
