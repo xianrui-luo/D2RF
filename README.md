@@ -11,7 +11,14 @@
 <img src=https://github.com/notorious-eric/D2RF/blob/main/quantitative_github.png/>
 </p>
 
+## [Data](https://drive.google.com/drive/folders/1nUNWrFLKmK2g-ClJ4Nd9OGuxhYeu6Sv7?usp=sharing) (uploading) | [Paper](https://arxiv.org/abs/2407.05586) 
 
 This repository is the official PyTorch implementation of the ECCV 2024 paper "Dynamic Neural Radiance Field From Defocused Monocular Video".
 
-## [Data](https://drive.google.com/drive/folders/1nUNWrFLKmK2g-ClJ4Nd9OGuxhYeu6Sv7?usp=sharing) (uploading)
+
+
+
+## Usage 
+We use the left-view for training and the right-view for evaluation.
+
+## Dataset
