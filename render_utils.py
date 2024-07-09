@@ -5,7 +5,7 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from run_nerf_helpers import *
+from run_nerf_helpers_mpi import *
 from bokeh_utils import MPIBokehRenderer_final,MPIBokehRenderer_blending_final
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DEBUG = False
@@ -1008,7 +1008,7 @@ def raw2outputs_blending_mpi(raw_dy,
 
                         ##moidified by lxr
     if bokeh:
-        bokeh_map_ref=MPIBokehRenderer_blending_final(raw_dy,raw_rigid,alpha_dy,alpha_rig,raw_blend_w,z_vals,K,disp_focus,weight=weight,num_pt=num_pt)
+        bokeh_map_ref=MPIBokehRenderer_blending_final(raw_dy,raw_rigid,alpha_dy,alpha_rig,weight=weight,num_pt=num_pt)
 
     weights_mix = weights_dy + weights_rig
     depth_map = torch.sum(weights_mix * z_vals, -1)
@@ -1021,7 +1021,7 @@ def raw2outputs_blending_mpi(raw_dy,
     rgb_map_fg = torch.sum(weights_fg[..., None] * rgb_dy, -2) 
     ##modified by lxr
     if bokeh:
-        bokeh_map_ref_dy=MPIBokehRenderer_final(raw_dy,alpha_fg,z_vals,K,disp_focus,weight=weight,num_pt=num_pt)
+        bokeh_map_ref_dy=MPIBokehRenderer_final(raw_dy,alpha_fg,weight=weight,num_pt=num_pt)
 
         return rgb_map, depth_map, \
            rgb_map_fg, depth_map_fg, weights_fg, \
@@ -1060,7 +1060,7 @@ def raw2outputs_warp(raw_p,
 
     ##modified by lxr
     if bokeh:
-        bokeh_map=MPIBokehRenderer_final(raw_p,alpha,z_vals,K,disp_focus,weight=weight,num_pt=num_pt)
+        bokeh_map=MPIBokehRenderer_final(raw_p,alpha,weight=weight,num_pt=num_pt)
         return rgb_map, depth_map, weights,bokeh_map#, alpha #alpha#, 1. - probs
     else:
         return rgb_map, depth_map, weights
@@ -1137,7 +1137,7 @@ def raw2outputs_mpi(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pyte
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
 
     ##modified by lxr
-    rgb_bokeh=MPIBokehRenderer_final(raw,alpha,z_vals,weight=weight,num_pt=num_pt)
+    rgb_bokeh=MPIBokehRenderer_final(raw,alpha,weight=weight,num_pt=num_pt)
 
 
     return rgb_map, weights, depth_map,rgb_bokeh
