@@ -19,6 +19,15 @@ This repository is the official PyTorch implementation of the ECCV 2024 paper "D
 
 
 ## Usage 
+### Training
+```
+python run_nerf.py --config configs/xxx.txt
+```
+
 We use the left-view for training and the right-view for evaluation.
+```
+python run_nerf.py --config configs/xxx.txt --render_test
+```
+
 
 ## Dataset
