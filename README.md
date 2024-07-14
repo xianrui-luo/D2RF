@@ -19,16 +19,27 @@ This repository is the official PyTorch implementation of the ECCV 2024 paper "D
 
 
 ## Usage 
+### Dependency
+- numpy
+- scikit-image
+- imageio
+- configargparse
+- opencv-python
+- kornia
+- torch
+- torchvision
 ### Training
 ```
 python run_nerf.py --config configs/xxx.txt
 ```
 
-We use the left-view for training and the right-view for evaluation.
+We use the left view for training and the right view for evaluation.
 ```
 python run_nerf.py --config configs/xxx.txt --render_test
 ```
 
 The checkpoints are in [Google Drive](https://drive.google.com/drive/folders/1_2FjsZnYlXcfPQfSC39t4BLXh34Tse_X).
 
-## Dataset
+There are a total of 8 scenes used in the paper. You can download all the data in [here](https://drive.google.com/drive/folders/1nUNWrFLKmK2g-ClJ4Nd9OGuxhYeu6Sv7?usp=sharing).
+## Acknowledge
+This source code is derived from [Deblur-NeRF](https://github.com/limacv/Deblur-NeRF) and [NSFF](https://github.com/zhengqili/Neural-Scene-Flow-Fields). We appreciate the effort of the contributors to these repositories.
