@@ -21,7 +21,7 @@ This repository is the official PyTorch implementation of the ECCV 2024 paper "D
 ## Usage 
 ### Dependency
 - numpy
-- scikit-image
+- scikit-image==0.21.0
 - imageio
 - configargparse
 - opencv-python
