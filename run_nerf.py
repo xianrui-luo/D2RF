@@ -230,7 +230,6 @@ def train():
     # Create log dir and copy the config file
     basedir = args.basedir
     
-    # args.expname = args.expname+'_mpi'
     expname=args.expname
 
     os.makedirs(os.path.join(basedir, expname), exist_ok=True)
