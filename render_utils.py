@@ -793,7 +793,7 @@ def render_bullet_time(render_poses, img_idx_embed, num_img,
             rgb8 = to8b(rgb)
             depth8 = to8b(depth.unsqueeze(-1).repeat(1, 1, 3).cpu().numpy())
 
-###modified by lxr
+
             # start_y = (rgb8.shape[1] - 512) // 2
             # rgb8 = rgb8[:, start_y:start_y+ 512, :]
 
@@ -802,12 +802,12 @@ def render_bullet_time(render_poses, img_idx_embed, num_img,
             filename = os.path.join(save_img_dir, '{:03d}.jpg'.format(i))
             imageio.imwrite(filename, rgb8)
 
-            ## modified by lxr
+
             rgbs.append(rgb8)
 
             # filename = os.path.join(save_depth_dir, '{:03d}.jpg'.format(i))
             # imageio.imwrite(filename, depth8)
-        ## modified by lxr
+
         imageio.mimwrite(os.path.join(save_img_dir,'bullet.mp4'),
                             rgbs, fps=25, quality=8, macro_block_size=1)
 def create_nerf(args,kernelnet):
@@ -1019,7 +1019,7 @@ def raw2outputs_blending_mpi(raw_dy,
                                                                 1.-alpha_fg + 1e-10], -1), -1)[:, :-1]
     depth_map_fg = torch.sum(weights_fg * z_vals, -1)
     rgb_map_fg = torch.sum(weights_fg[..., None] * rgb_dy, -2) 
-    ##modified by lxr
+
     if bokeh:
         bokeh_map_ref_dy=MPIBokehRenderer_final(raw_dy,alpha_fg,weight=weight,num_pt=num_pt)
 
@@ -1058,7 +1058,7 @@ def raw2outputs_warp(raw_p,
 
     depth_map = torch.sum(weights * z_vals, -1)
 
-    ##modified by lxr
+
     if bokeh:
         bokeh_map=MPIBokehRenderer_final(raw_p,alpha,weight=weight,num_pt=num_pt)
         return rgb_map, depth_map, weights,bokeh_map#, alpha #alpha#, 1. - probs
@@ -1136,7 +1136,7 @@ def raw2outputs_mpi(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pyte
     depth_map = torch.sum(weights * z_vals, -1)
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
 
-    ##modified by lxr
+
     rgb_bokeh=MPIBokehRenderer_final(raw,alpha,weight=weight,num_pt=num_pt)
 
 
