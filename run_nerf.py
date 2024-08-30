@@ -839,7 +839,6 @@ def train():
                             flow_bwd_rgb, global_step=i, dataformats='HWC')
 
             with torch.no_grad():
-                # if i< decay_iteration*1000:
                 ret = render(img_idx_embed,
                         chain_bwd, False,
                         num_img, H, W, focal, 

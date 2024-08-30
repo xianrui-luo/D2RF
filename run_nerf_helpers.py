@@ -86,14 +86,8 @@ class NeRF(nn.Module):
         
         self.pts_linears = nn.ModuleList(
             [nn.Linear(input_ch, W)] + [nn.Linear(W, W) if i not in self.skips else nn.Linear(W + input_ch, W) for i in range(D-1)])
-        
-        ### Implementation according to the official code release (https://github.com/bmild/nerf/blob/master/run_nerf_helpers.py#L104-L105)
+    
         self.views_linears = nn.ModuleList([nn.Linear(input_ch_views + W, W//2)])
-
-        ### Implementation according to the paper
-        # self.views_linears = nn.ModuleList(
-        #     [nn.Linear(input_ch_views + W, W//2)] + [nn.Linear(W//2, W//2) for i in range(D//2)])
-        
         if use_viewdirs:
             self.feature_linear = nn.Linear(W, W)
             self.alpha_linear = nn.Linear(W, 1)
@@ -109,7 +103,7 @@ class NeRF(nn.Module):
         if self.use_viewdirs:
             input_pts, input_views = torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
         else:
-            input_pts = x #torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
+            input_pts = x 
 
         h = input_pts
         for i, l in enumerate(self.pts_linears):
@@ -139,8 +133,6 @@ class NeRF(nn.Module):
         return torch.cat([outputs, sf, prob], dim=-1)
 
 
-
-# Model
 class Rigid_NeRF(nn.Module):
     def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=True):
         """ 
@@ -166,8 +158,6 @@ class Rigid_NeRF(nn.Module):
             self.output_linear = nn.Linear(W, output_ch)
     
         self.w_linear = nn.Linear(W, 1)
-        # h = F.relu(h)
-        # blend_w = nn.functional.sigmoid(self.w_linear(h))
 
     def forward(self, x):
 

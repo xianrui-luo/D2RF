@@ -703,19 +703,12 @@ def render_mpi_dsk(img_idx, chain_bwd, chain_5frames,
     # Render and reshape
     all_ret = batchify_rays_mpi_dsk(img_idx, chain_bwd, chain_5frames, 
                         num_img, rays, chunk,weight=weight,num_pt=num_pt, **kwargs)
-    # all_ret = batchify_rays(img_idx, chain_bwd, chain_5frames, 
-    #                     num_img, rays, chunk, **kwargs)
-    pt_num=num_pt
+
     for k in all_ret:
         k_sh = list(sh[:-1]) + list(all_ret[k].shape[1:])
         k_sh[0]=k_sh[0]//num_pt
         all_ret[k] = torch.reshape(all_ret[k], k_sh)
 
-    # k_extract = ['rgb_map', 'disp_map', 'depth_map', 'scene_flow', 'raw_sf_t']
-
-    # ret_list = [all_ret[k] for k in k_extract]
-    # ret_dict = {k : all_ret[k] for k in all_ret if k not in k_extract}
-    # return ret_list + [ret_dict]
     return all_ret
 
 
@@ -734,11 +727,6 @@ def render_bullet_time_new(render_poses, img_idx_embed, num_img,
     disps = []
 
     t = time.time()
-
-    # save_img_dir = os.path.join(savedir, 'images')
-    # save_depth_dir = os.path.join(savedir, 'depths')
-    # os.makedirs(save_img_dir, exist_ok=True)
-    # os.makedirs(save_depth_dir, exist_ok=True)
 
     for i in range(0, (render_poses.shape[0])):
         c2w = render_poses[i]
@@ -811,7 +799,6 @@ def render_bullet_time(render_poses, img_idx_embed, num_img,
         imageio.mimwrite(os.path.join(save_img_dir,'bullet.mp4'),
                             rgbs, fps=25, quality=8, macro_block_size=1)
 def create_nerf(args,kernelnet):
-# def create_nerf(args):
     """Instantiate NeRF's MLP model.
     """
     # XYZ + T
@@ -828,10 +815,6 @@ def create_nerf(args,kernelnet):
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
-
-    # print(torch.cuda.device_count())
-    # sys.exit()
-
     device_ids = list(range(torch.cuda.device_count()))
     model = torch.nn.DataParallel(model, device_ids=device_ids)
     kernelnet = torch.nn.DataParallel(kernelnet, device_ids=device_ids)
@@ -1093,7 +1076,6 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         noise = torch.randn(raw[...,3].shape) * raw_noise_std
 
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
-    # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
@@ -1129,7 +1111,6 @@ def raw2outputs_mpi(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pyte
         noise = torch.randn(raw[...,3].shape) * raw_noise_std
 
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
-    # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
@@ -1550,8 +1531,7 @@ def render_rays_mpi_dsk(img_idx,
                                                            z_vals, rays_d, K,disp_focus,
                                                            raw_noise_std,weight=weight,bokeh=True,num_pt=num_pt)
 
-    # ret['raw_sf_post2ref'] = raw_sf_post2ref
-    # ret['rgb_map_post_dy'] = rgb_map_post_dy
+
     ret['bokeh_map_post_dy'] = bokeh_map_post_dy
 
     raw_prob_ref2prev = raw_ref[:, :, 10]
@@ -1578,14 +1558,12 @@ def render_rays_mpi_dsk(img_idx,
                                                                            z_vals, rays_d, K,disp_focus,
                                                                            raw_noise_std,weight=weight,bokeh=True,num_pt=num_pt)
 
-            # ret['rgb_map_pp_dy'] = rgb_map_prevprev_dy
             ret['bokeh_map_pp_dy'] = bokeh_map_prevprev_dy
 
     else:
         # render points at t + 2
         img_idx_rep_postpost = torch.ones_like(pts[:, :, 0:1]) * (img_idx + 2./num_img * 2. )    
         pts_postpost = torch.cat([(pts_post[:, :, :3] + raw_sf_post2postpost), img_idx_rep_postpost] , -1)
-        # ret['raw_pts_pp'] = pts_postpost[:, :, :3]
 
         if chain_5frames:
             raw_postpost = network_query_fn(pts_postpost, viewdirs, network_fn)
@@ -1596,7 +1574,6 @@ def render_rays_mpi_dsk(img_idx,
                                                                            z_vals, rays_d, K,disp_focus,
                                                                            raw_noise_std,weight=weight,bokeh=True,num_pt=num_pt)
 
-            # ret['rgb_map_pp_dy'] = rgb_map_postpost_dy
             ret['bokeh_map_pp_dy'] = bokeh_map_postpost_dy
 
 
@@ -1689,11 +1666,11 @@ class DSKnet(nn.Module):
         self.depth_embed_fn, self.depth_embed_cnl = None, 0
 
         in_cnl = self.in_embed_cnl + self.img_embed_cnl + self.depth_embed_cnl + self.spatial_embed_cnl
-        out_cnl = 1 + 2 + 2 if self.optim_sv_trans else 1 + 2  # u, v, w or u, v, w, dx, dy
-        # out_cnl = 2 + 2 if self.optim_sv_trans else 2  # u, v or u, v, dx, dy
+        out_cnl = 1 + 2 + 2 if self.optim_sv_trans else 1 + 2 
+
         hiddens = [nn.Linear(num_wide, num_wide) if i % 2 == 0 else nn.ReLU()
                    for i in range((num_hidden - 1) * 2)]
-        # hiddens = [nn.Linear(num_wide, num_wide), nn.ReLU()] * num_hidden
+
         self.linears = nn.Sequential(
             nn.Linear(in_cnl, num_wide), nn.ReLU(),
             *hiddens,
@@ -1719,8 +1696,6 @@ class DSKnet(nn.Module):
         img_embed = imbed*torch.ones_like(rays_x).squeeze(1)
         indexembed= index*torch.ones_like(rays_x).squeeze(1).to(torch.int64)
         lendix=rays_x.shape[0]
-        # img_embed = self.img_embed[img_idx] if self.img_embed is not None else \
-        #     torch.tensor([]).reshape(len(img_idx), self.img_embed_cnl)
 
         pt_pos = self.pattern_pos.expand(lendix, -1, -1) if self.isglobal \
             else self.pattern_pos[indexembed]
@@ -1736,11 +1711,9 @@ class DSKnet(nn.Module):
             pt_pos = pt_pos * (np.pi / self.kernel_hwindow)
             pt_pos = self.in_embed_fn(pt_pos)
 
-        # img_embed_expand = img_embed[:, None].expand(len(img_embed), self.num_pt, self.img_embed_cnl)
         img_embed_expand = img_embed[:, None,None].expand(lendix, self.num_pt, self.img_embed_cnl)
         x = torch.cat([pt_pos, img_embed_expand], dim=-1)
 
-        # rays_x, rays_y = rays_info['rays_x'], rays_info['rays_y']
         if self.spatial_embed_fn is not None:
             spatialx = rays_x / (W / 2 / np.pi) - np.pi
             spatialy = rays_y / (H / 2 / np.pi) - np.pi  # scale 2pi to match the freq in the embedder
@@ -1760,11 +1733,6 @@ class DSKnet(nn.Module):
             # delta_trans, delta_pos = torch.split(x1, [2, 2], dim=-1)
         else:
             delta_pos, weight = torch.split(x1, [2, 1], dim=-1)
-            # delta_pos= x1
-
-        # if self.optim_trans:
-        #     delta_trans = self.pattern_trans.expand(len(img_idx), -1, -1) if self.isglobal \
-        #         else self.pattern_trans[img_idx]
 
         if delta_trans is None:
             delta_trans = torch.zeros_like(delta_pos)
